@@ -1298,12 +1298,12 @@ superS: new Animation({ src: "./src/platforms/PlatS/SuperJump_Red_S.png", frames
 superM: new Animation({ src: "./src/platforms/PlatM/SuperJump_Red_M.png", frames:2, interval:12}),
 }
 
-// Animacion de logo
-/*const logoAnimation = new Animation({
-src: "./src/background/RORE Games Logo.png", // 👈 tu spritesheet
-frames: 24,                      	// 👈 número de cuadros en la animación
-interval: 10                    	// 👈 cada cuántos ticks cambia de frame
-});*/
+//Animacion de logo - COMENTADO temporalmente
+// const logoAnimation = new Animation({
+// src: "./src/Background/RORE Games Logo.png", // 👈 tu spritesheet
+// frames: 24,                       	// 👈 número de cuadros en la animación
+// interval: 10                     	// 👈 cada cuántos ticks cambia de frame
+// });
 
 //Animacion de game over
 
