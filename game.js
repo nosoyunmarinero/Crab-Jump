@@ -17,15 +17,15 @@ let accumulator = 0;
 
 // Fondo del gameplay
 const bg = new Image();
- bg.src = "./src/background/1.png";
+ bg.src = "./src/Background/1.png";
 
 // Fondo del menú
 const menuBackground = new Image();
- menuBackground.src = "./src/background/Start.png";
+ menuBackground.src = "./src/Background/Start.png";
 
 // Fondo de Game Over
 const gameOverBackground = new Image();
-gameOverBackground.src = "./src/background/gameover.png"; // 👈 tu imagen distinta
+gameOverBackground.src = "./src/Background/gameover.png"; // 👈 tu imagen distinta
 
 // Guardar progreso localmente
 const savedMaxDistance = localStorage.getItem("maxDistance");
@@ -478,7 +478,7 @@ constructor({ onGameOver, canvasHeight } = {}) {
    this.objects = [];   // aquí guardaremos monedas y otros consumibles
    this.coins = 0;  	// contador global de monedas
    this.coinImage = new Image();
-   this.coinImage.src = objects.coin.src;
+
 
    this.platforms = [];
    this.debug = false;
@@ -1184,7 +1184,7 @@ device: {
    width: 32,
    height: 32,
    srcs: [
- 	"./src/obstacles/Device.png",
+ 	"./src/Obstacles/Device.png",
    ],
    fallSpeed: 3,
    probability: 0.9,
@@ -1194,7 +1194,7 @@ ball: {
    width: 32,
    height: 32,
    srcs: [
- 	"./src/obstacles/ball.png",
+ 	"./src/Obstacles/ball.png",
    ],
    fallSpeed: 2,
    probability: 0.9,
@@ -1205,7 +1205,7 @@ f5: {
    width: 32,
    height: 32,
    srcs: [
- 	"./src/obstacles/Factor5.png",
+ 	"./src/Obstacles/Factor5.png",
    ],
    fallSpeed: 5,
    probability: 0.9,
@@ -1215,7 +1215,7 @@ GPC: {
    width: 32,
    height: 32,
    srcs: [
- 	"./src/obstacles/GPC.png",
+ 	"./src/Obstacles/GPC.png",
    ],
    fallSpeed: 3,
    probability: 0.9,
@@ -1229,7 +1229,7 @@ coin: {
    type: "coin",   	// 👈 necesario para que drawObjects la reconozca
    width: 20,
    height: 20,
-   src: "./src/Objects/coin.png",
+   src: "./src/Objects/Coin.png",
    probability: 0.1,
    frames: 20,
    frameIndex: 0,
