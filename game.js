@@ -1,8 +1,19 @@
-// =========== MAIN ===============
+// =========== FRAME-RATE INDEPENDENT GAME SYSTEM ===============
+// Este juego ahora usa un sistema de tiempo delta para ser independiente de los FPS
+// Los valores de física y movimiento se normalizan a 60 FPS como base
+// Esto significa que el juego correrá a la misma velocidad en todas las máquinas
+// sin importar si tienen 30, 60, 120 o más FPS
 
 window.addEventListener("load", () => {
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
+
+// ===== SISTEMA DE TIEMPO PARA FRAME-RATE INDEPENDIENTE =====
+let lastTime = 0;
+let deltaTime = 0;
+const TARGET_FPS = 60;
+const TARGET_FRAME_TIME = 1000 / TARGET_FPS;
+let accumulator = 0;
 
 // Fondo del gameplay
 const bg = new Image();
@@ -79,6 +90,9 @@ this.startY = player.y;
 
 
 const player = new Player(50, 50, 32, 32, canvas.height, canvas.width, playerAnimations);
+
+// Variables de tiempo para el jugador
+let playerLastTime = 0;
 const controls = new Controls();
 window.addEventListener("keydown", (e) => {
 if (e.key === "Escape") {
@@ -99,7 +113,7 @@ onGameOver: () => {
 canvasHeight: canvas.height
 });
 
-function update() {
+function update(dt) {
 if (!game.started || game.gameOver || game.paused) return;
 
 // Movimiento del jugador
@@ -109,8 +123,8 @@ else player.stop();
 
 if (controls.keys.up) player.jump();
 
- player.update();
- level.update(player);
+ player.update(dt);
+ level.update(player, dt);
  level.checkCollisions(player);
 
   // 👇 Calcular distancia recorrida
@@ -144,6 +158,12 @@ function draw() {
  ctx.fillText(`Récord: ${game.maxDistance} m`, 10, 40); 
  ctx.fillText(`Monedas: ${level.coins}`, 10, 60); // 👈 aquí mostramos las monedas
  ctx.fillText(`Total Monedas: ${game.globalCoins}`, 10, 80);
+ 
+ // 👇 Información de rendimiento (opcional - puedes quitarlo en producción)
+ ctx.fillStyle = "rgba(255,255,255,0.7)";
+ ctx.font = "12px system-ui";
+ ctx.fillText(`FPS: ${Math.round(1/deltaTime)}`, 10, 100);
+ ctx.fillText(`Delta: ${(deltaTime*1000).toFixed(1)}ms`, 10, 115);
 
 
 // Overlay de Game Over
@@ -210,7 +230,7 @@ function drawMenu(ctx) {
 
 // 👇 Animación del personaje en salto (centrado debajo del título)
  player.currentAnimation = playerAnimations.jump;
- player.currentAnimation.update();
+ player.currentAnimation.update(1/60); // Delta time fijo para menú
  player.currentAnimation.draw(ctx, canvas.width / 2 - 32, 200, 64, 64);
 
 // 👇 Mostrar récord más alto
@@ -263,7 +283,7 @@ if (gameOverBackground.complete) {
 
 // 👇 Animación del personaje derrotado (centrado debajo del texto)
  player.currentAnimation = playerAnimations.dead;
- player.currentAnimation.update();
+ player.currentAnimation.update(1/60); // Delta time fijo para game over
  player.currentAnimation.draw(ctx, canvas.width / 2 - 32, canvas.height / 2 - 32, 64, 64);
 
 
@@ -285,14 +305,22 @@ ctx.fillText("Presiona R para reintentar", canvas.width / 2, canvas.height / 2 +
 
 
 
-function loop() {
+function loop(currentTime) {
+ // Calcular delta time en segundos
+ if (lastTime === 0) lastTime = currentTime;
+ deltaTime = (currentTime - lastTime) / 1000; // Convertir a segundos
+ lastTime = currentTime;
+
+ // Limitar el delta time para evitar saltos grandes
+ deltaTime = Math.min(deltaTime, 0.1); // Máximo 100ms
+
  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 if (game.state === "menu") {
    // logoAnimation.update();
    drawMenu(ctx);
  } else if (game.state === "playing") {
-   update();
+   update(deltaTime);
    draw();
  } else if (game.state === "gameover") {
    drawGameOver(ctx); 
@@ -301,7 +329,7 @@ if (game.state === "menu") {
 requestAnimationFrame(loop);
 }
 
- bg.onload = () => loop();
+ bg.onload = () => requestAnimationFrame(loop);
 });
 
 // =================== CONTROLS =================
@@ -336,16 +364,16 @@ constructor(x, y, width, height, canvasHeight, canvasWidth, animations) {
 
 
 
-   // Física
+   // Física (valores originales)
    this.vy = 0;
-   this.gravity = 0.5;
+   this.gravity = 0.5; // Gravedad original
    this.jumpForce = -10; // 👈 Solo para saltar desde el suelo
 
    // Piso físico (ground)
    this.ground = canvasHeight - this.height + 10;
 
    // Movimiento horizontal
-   this.speed = 6;
+   this.speed = 6; // Velocidad original
    this.vx = 0;
 
    // Estado
@@ -364,20 +392,23 @@ setAnimation(name) {
    }
  }
 
-update() {
+update(dt) {
 if (this.frozen) return;
 this.prevY = this.y;
 
-// Física
-this.vy += this.gravity;
-this.y += this.vy;
+// Física con delta time - manteniendo valores originales
+// Multiplicador base para normalizar a 60 FPS
+const timeMultiplier = dt * 60;
+
+this.vy += this.gravity * timeMultiplier;
+this.y += this.vy * timeMultiplier;
 
 if (this.y > this.ground) {
    this.y = this.ground;
    this.vy = 0;
  }
 
-this.x += this.vx;
+this.x += this.vx * timeMultiplier;
 
 // Wrapping horizontal
 if (this.x + this.width < 0) this.x = this.canvasWidth;
@@ -385,7 +416,7 @@ else if (this.x > this.canvasWidth) this.x = -this.width;
 
 // 👇 Ya no decides animación aquí
 const anim = this.animations[this.currentAnim];
-if (anim) anim.update();
+if (anim) anim.update(dt);
 }
 
 // método para cambiar animación
@@ -465,6 +496,7 @@ constructor({ onGameOver, canvasHeight } = {}) {
    this.obstacles = [];
    this.obstacleSpawnFrames = 0;
    this.obstacleSpawnInterval = 120; // cada 120 frames aparece un "device"
+   this.obstacleSpawnTimer = 0; // Timer en segundos
 
    this.generateInitialPlatforms();
  }
@@ -656,14 +688,16 @@ spawnObstacle() {
    this.obstacles.push(this.createObstacle(typeKey, x, y));
  }
 
-updateObstacles(player) {
-this.obstacleSpawnFrames++; // contador de frames
-if (this.obstacleSpawnFrames % this.obstacleSpawnInterval === 0) {
-   this.spawnObstacle(); // genera obstáculo cada cierto tiempo
+updateObstacles(player, dt) {
+// Convertir el intervalo de spawn a tiempo real
+this.obstacleSpawnTimer = (this.obstacleSpawnTimer || 0) + dt;
+if (this.obstacleSpawnTimer >= this.obstacleSpawnInterval / 60) {
+   this.spawnObstacle();
+   this.obstacleSpawnTimer = 0;
  }
 
 this.obstacles = this.obstacles.filter((o) => {
-   o.y += o.speed; // hace caer al obstáculo
+   o.y += o.speed * dt * 60; // hace caer al obstáculo con delta time
 
    // detección de colisión jugador vs obstáculo
    const hit =
@@ -700,13 +734,14 @@ return true;                             	// no elimina la pelota
  });
 }
 
-updateObjects(player) {
+updateObjects(player, dt) {
 this.objects = this.objects.filter(obj => {
    if (obj.type === "coin") {
- 	// animación
-     obj.tick++;
- 	if (obj.tick % objects.coin.frameSpeed === 0) {
+ 	// animación con delta time
+     obj.tick = (obj.tick || 0) + dt * 60;
+ 	if (obj.tick >= objects.coin.frameSpeed) {
        obj.frameIndex = (obj.frameIndex + 1) % objects.coin.frames;
+       obj.tick = 0;
      }
 
  	// colisión con jugador
@@ -760,7 +795,7 @@ resetObstacles() {
  }
 
 // ====== Update con scroll ======
-update(player) {
+update(player, dt) {
 const threshold = 200;
 
 // Scroll de cámara
@@ -852,7 +887,7 @@ this.objects.push({
 // Actualizar plataformas móviles
 this.platforms.forEach(p => {
    if (p.type === "moving") {
-     p.x += p.speed * p.direction;
+     p.x += p.speed * p.direction * dt * 60;
  	if (p.x < 0 || p.x + p.width > 300) p.direction *= -1;
    }
  });
@@ -861,10 +896,10 @@ this.platforms.forEach(p => {
 this.deathLine.y = this.cameraY + this.canvasHeight + 100;
 
 //Obstaculos
-this.updateObstacles(player);
+this.updateObstacles(player, dt);
 
 //Objetos
-this.updateObjects(player);
+this.updateObjects(player, dt);
 }
 
 
@@ -881,6 +916,7 @@ draw(ctx) {
 // Plataformas
 this.platforms.forEach(p => {
    if (p.animation) {
+     p.animation.update(1/60); // Delta time fijo para animaciones en draw
      p.animation.draw(ctx, p.x, p.y - this.cameraY, p.width, p.height);
    } else if (p.image && p.ready && p.image.complete) {
  	if (!p.spawnTime) p.spawnTime = Date.now();
@@ -1220,9 +1256,9 @@ constructor({ src, frames, interval }) {
    };
  }
 
-update() {
-   this.frameTimer++;
-   if (this.frameTimer >= this.interval) {
+update(dt) {
+   this.frameTimer = (this.frameTimer || 0) + dt;
+   if (this.frameTimer >= this.interval / 60) {
  	this.frameIndex = (this.frameIndex + 1) % this.frames;
  	this.frameTimer = 0;
    }
