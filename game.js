@@ -196,7 +196,7 @@ function drawMenu(ctx) {
  ctx.drawImage(menuBackground, 0, 0, canvas.width, canvas.height);
 
 // Logo animado
- logoAnimation.draw(ctx, 10, 10, 64, 64);
+ // logoAnimation.draw(ctx, 10, 10, 64, 64);
 
 // Título con sombra
  ctx.fillStyle = "#fff";
@@ -289,7 +289,7 @@ function loop() {
  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 if (game.state === "menu") {
-   logoAnimation.update();
+   // logoAnimation.update();
    drawMenu(ctx);
  } else if (game.state === "playing") {
    update();
@@ -1260,7 +1260,6 @@ dead: new Animation({ src: "./src/Player/zuluzulu-defeated.png", frames: 9, inte
 const platformsAnimation = {
 superS: new Animation({ src: "./src/platforms/PlatS/SuperJump_Red_S.png", frames:2, interval:12}),
 superM: new Animation({ src: "./src/platforms/PlatM/SuperJump_Red_M.png", frames:2, interval:12}),
-superL: new Animation({ src: "./src/platforms/PlatL/SuperJump_Red_L.png", frames:2, interval:12}),
 }
 
 // Animacion de logo
