@@ -1328,8 +1328,11 @@ let loaded = 0;
 // ======= CONTROLES MÓVILES =======
 // Sistema de controles táctiles para dispositivos móviles
 function setupMobileControls() {
- // Verificar si es un dispositivo móvil
- const isMobile = window.matchMedia('(max-width: 768px) and (hover: none) and (pointer: coarse)').matches;
+ // Verificar si es un dispositivo móvil (múltiples métodos)
+ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+         	  window.matchMedia('(max-width: 768px) and (hover: none) and (pointer: coarse)').matches ||
+         	  ('ontouchstart' in window) ||
+         	  (navigator.maxTouchPoints > 0);
  
  if (!isMobile) return;
  

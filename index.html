@@ -33,23 +33,27 @@
    .mobile-controls {
  	display: none;
  	position: fixed;
- 	bottom: 20px;
- 	left: 0;
- 	right: 0;
+ 	bottom: env(safe-area-inset-bottom, 10px);
+ 	left: 50%;
+ 	transform: translateX(-50%);
  	z-index: 1000;
  	pointer-events: none;
+ 	width: 100%;
+ 	max-width: 512px;
+ 	padding: 0 20px;
+ 	box-sizing: border-box;
    }
 
    .mobile-button {
  	position: absolute;
- 	background: rgba(255, 255, 255, 0.2);
- 	border: 2px solid rgba(255, 255, 255, 0.4);
+ 	background: rgba(255, 255, 255, 0.25);
+ 	border: 2px solid rgba(255, 255, 255, 0.5);
  	border-radius: 50%;
  	color: white;
- 	font-size: 24px;
+ 	font-size: 20px;
  	font-weight: bold;
- 	width: 60px;
- 	height: 60px;
+ 	width: 55px;
+ 	height: 55px;
  	display: flex;
  	align-items: center;
  	justify-content: center;
@@ -59,25 +63,29 @@
  	-webkit-touch-callout: none;
  	pointer-events: auto;
  	transition: all 0.1s ease;
+ 	-webkit-tap-highlight-color: transparent;
    }
 
    .mobile-button:active {
  	background: rgba(255, 255, 255, 0.4);
- 	transform: scale(0.95);
+ 	transform: scale(0.9);
    }
 
    .mobile-button.left {
- 	left: 20px;
+ 	left: 0;
    }
 
    .mobile-button.right {
- 	left: 90px;
+ 	left: 65px;
    }
 
    .mobile-button.jump {
- 	right: 20px;
- 	background: rgba(76, 175, 80, 0.3);
- 	border-color: rgba(76, 175, 80, 0.6);
+ 	right: 0;
+ 	background: rgba(76, 175, 80, 0.35);
+ 	border-color: rgba(76, 175, 80, 0.7);
+ 	width: 65px;
+ 	height: 65px;
+ 	font-size: 24px;
    }
 
    .mobile-button.jump:active {
@@ -87,7 +95,11 @@
    /* Mostrar controles solo en móviles */
    @media (max-width: 768px) and (hover: none) and (pointer: coarse) {
  	.mobile-controls {
-  	 display: flex;
+  	 display: block;
+ 	}
+ 
+ 	body {
+  	 padding-bottom: 100px; /* Espacio para los botones */
  	}
  
  	canvas {
@@ -95,6 +107,13 @@
   	 height: 100vh;
   	 max-width: 512px;
   	 max-height: 512px;
+ 	}
+   }
+
+   /* Soporte para iPhone con notch */
+   @supports (padding-bottom: env(safe-area-inset-bottom)) {
+ 	.mobile-controls {
+  	 bottom: calc(env(safe-area-inset-bottom) + 10px);
  	}
    }
 </style>
