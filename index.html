@@ -73,20 +73,21 @@
    }
 
    .mobile-button.left {
- 	left: 0;
+	left: 20px;
    }
 
    .mobile-button.right {
- 	left: 65px;
+	right: 20px;
+	left: auto;
    }
 
    .mobile-button.jump {
- 	right: 0;
- 	background: rgba(76, 175, 80, 0.35);
- 	border-color: rgba(76, 175, 80, 0.7);
- 	width: 65px;
- 	height: 65px;
- 	font-size: 24px;
+	right: 0;
+	background: rgba(76, 175, 80, 0.35);
+	border-color: rgba(76, 175, 80, 0.7);
+	width: 65px;
+	height: 65px;
+	font-size: 24px;
    }
 
    .mobile-button.jump:active {
@@ -96,18 +97,21 @@
    /* Mostrar controles solo en móviles */
    @media (max-width: 768px) and (hover: none) and (pointer: coarse) {
  	.mobile-controls {
-  	 display: block;
+  	  display: flex;
+  	  justify-content: space-between;
+  	  align-items: center;
+  	  padding: 0 20px;
  	}
  
  	body {
-  	 padding-bottom: 100px; /* Espacio para los botones */
+  	  padding-bottom: 0;
  	}
  
  	canvas {
-  	 width: 100vw;
-  	 height: 100vh;
-  	 max-width: 512px;
-  	 max-height: 512px;
+  	  width: 100vw;
+  	  height: 100vh;
+  	  max-width: 512px;
+  	  max-height: 512px;
  	}
    }
 
@@ -122,11 +126,10 @@
 <body>
 <canvas id="game" width="512" height="512"></canvas>
 
-<!-- Controles móviles -->
+<!-- Controles móviles - solo izquierda y derecha -->
 <div class="mobile-controls" id="mobileControls">
  <button class="mobile-button left" id="leftBtn">←</button>
  <button class="mobile-button right" id="rightBtn">→</button>
- <button class="mobile-button jump" id="jumpBtn">↑</button>
 </div>
 
 <script src="game.js"></script>

@@ -85,6 +85,8 @@ this.startY = player.y;
  level.objects = [];   	// 👈 limpiar monedas previas
  level.coins = 0;      	// 👈 reiniciar contador de monedas
  level.generateInitialPlatforms();
+
+// No necesitamos remover clases, el tap en pantalla maneja el reinicio
 }
 };
 
@@ -183,7 +185,14 @@ if (game.gameOver) {
      canvas.width / 2,
      canvas.height / 2 + 40
    );
-   ctx.fillText("Presiona R para reiniciar", canvas.width / 2, canvas.height / 2 + 80);
+   // Detectar si es móvil
+   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+				window.matchMedia('(max-width: 768px) and (hover: none) and (pointer: coarse)').matches ||
+				('ontouchstart' in window) ||
+				(navigator.maxTouchPoints > 0);
+   
+   const restartMessage = isMobile ? "TOCA LA PANTALLA PARA REINICIAR" : "PRESIONA R PARA REINICIAR";
+   ctx.fillText(restartMessage, canvas.width / 2, canvas.height / 2 + 80);
    ctx.restore();
  }
    // 👇 Overlay de Pausa
@@ -205,7 +214,15 @@ if (!game.started && !game.gameOver) {
  ctx.fillStyle = "#fff";
  ctx.font = "bold 18px system-ui";
  ctx.textAlign = "center";
- ctx.fillText("PRESIONA SPACE PARA JUGAR", canvas.width / 2, canvas.height / 2);
+ 
+ // Detectar si es móvil
+ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+			   window.matchMedia('(max-width: 768px) and (hover: none) and (pointer: coarse)').matches ||
+			   ('ontouchstart' in window) ||
+			   (navigator.maxTouchPoints > 0);
+ 
+ const message = isMobile ? "TOCA LA PANTALLA PARA JUGAR" : "PRESIONA SPACE PARA JUGAR";
+ ctx.fillText(message, canvas.width / 2, canvas.height / 2);
  ctx.restore();
 }
 
@@ -1339,9 +1356,8 @@ function setupMobileControls() {
  const mobileControls = document.getElementById('mobileControls');
  const leftBtn = document.getElementById('leftBtn');
  const rightBtn = document.getElementById('rightBtn');
- const jumpBtn = document.getElementById('jumpBtn');
  
- if (!mobileControls || !leftBtn || !rightBtn || !jumpBtn) return;
+ if (!mobileControls || !leftBtn || !rightBtn) return;
  
  // Funciones auxiliares para simular teclas
  function simulateKeyDown(keyCode) {
