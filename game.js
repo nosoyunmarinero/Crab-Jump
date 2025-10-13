@@ -1324,3 +1324,108 @@ let loaded = 0;
    img.src = types[key].src;
  });
 }
+
+// ======= CONTROLES MÓVILES =======
+// Sistema de controles táctiles para dispositivos móviles
+function setupMobileControls() {
+ // Verificar si es un dispositivo móvil
+ const isMobile = window.matchMedia('(max-width: 768px) and (hover: none) and (pointer: coarse)').matches;
+ 
+ if (!isMobile) return;
+ 
+ const mobileControls = document.getElementById('mobileControls');
+ const leftBtn = document.getElementById('leftBtn');
+ const rightBtn = document.getElementById('rightBtn');
+ const jumpBtn = document.getElementById('jumpBtn');
+ 
+ if (!mobileControls || !leftBtn || !rightBtn || !jumpBtn) return;
+ 
+ // Funciones auxiliares para simular teclas
+ function simulateKeyDown(keyCode) {
+   const event = new KeyboardEvent('keydown', { code: keyCode });
+   window.dispatchEvent(event);
+ }
+ 
+ function simulateKeyUp(keyCode) {
+   const event = new KeyboardEvent('keyup', { code: keyCode });
+   window.dispatchEvent(event);
+ }
+ 
+ // Botón izquierdo
+ leftBtn.addEventListener('touchstart', (e) => {
+   e.preventDefault();
+   simulateKeyDown('ArrowLeft');
+ });
+ 
+ leftBtn.addEventListener('touchend', (e) => {
+   e.preventDefault();
+   simulateKeyUp('ArrowLeft');
+ });
+ 
+ leftBtn.addEventListener('mousedown', (e) => {
+   e.preventDefault();
+   simulateKeyDown('ArrowLeft');
+ });
+ 
+ leftBtn.addEventListener('mouseup', (e) => {
+   e.preventDefault();
+   simulateKeyUp('ArrowLeft');
+ });
+ 
+ // Botón derecho
+ rightBtn.addEventListener('touchstart', (e) => {
+   e.preventDefault();
+   simulateKeyDown('ArrowRight');
+ });
+ 
+ rightBtn.addEventListener('touchend', (e) => {
+   e.preventDefault();
+   simulateKeyUp('ArrowRight');
+ });
+ 
+ rightBtn.addEventListener('mousedown', (e) => {
+   e.preventDefault();
+   simulateKeyDown('ArrowRight');
+ });
+ 
+ rightBtn.addEventListener('mouseup', (e) => {
+   e.preventDefault();
+   simulateKeyUp('ArrowRight');
+ });
+ 
+ // Botón de salto
+ jumpBtn.addEventListener('touchstart', (e) => {
+   e.preventDefault();
+   simulateKeyDown('Space');
+ });
+ 
+ jumpBtn.addEventListener('touchend', (e) => {
+   e.preventDefault();
+   simulateKeyUp('Space');
+ });
+ 
+ jumpBtn.addEventListener('mousedown', (e) => {
+   e.preventDefault();
+   simulateKeyDown('Space');
+ });
+ 
+ jumpBtn.addEventListener('mouseup', (e) => {
+   e.preventDefault();
+   simulateKeyUp('Space');
+ });
+ 
+ // Prevenir el menú contextual en botones
+ [leftBtn, rightBtn, jumpBtn].forEach(btn => {
+   btn.addEventListener('contextmenu', (e) => e.preventDefault());
+ });
+}
+
+// Inicializar controles móviles cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', setupMobileControls);
+
+// También intentar inicializar cuando el script se carga (por si acaso)
+if (document.readyState === 'loading') {
+ document.addEventListener('DOMContentLoaded', setupMobileControls);
+} else {
+ setupMobileControls();
+}

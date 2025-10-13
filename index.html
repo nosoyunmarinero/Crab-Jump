@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <title>Crab Jump</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 <style>
    :root { 
  	--w: 512; 
@@ -17,6 +17,7 @@
  	background: var(--bg);
  	display: grid;
  	place-items: center;
+ 	overflow: hidden;
    }
 
    canvas {
@@ -27,10 +28,86 @@
  	border: 1px solid #333;
  	box-shadow: 0 0 24px rgba(0,0,0,0.6);
    }
+
+   /* Controles móviles */
+   .mobile-controls {
+ 	display: none;
+ 	position: fixed;
+ 	bottom: 20px;
+ 	left: 0;
+ 	right: 0;
+ 	z-index: 1000;
+ 	pointer-events: none;
+   }
+
+   .mobile-button {
+ 	position: absolute;
+ 	background: rgba(255, 255, 255, 0.2);
+ 	border: 2px solid rgba(255, 255, 255, 0.4);
+ 	border-radius: 50%;
+ 	color: white;
+ 	font-size: 24px;
+ 	font-weight: bold;
+ 	width: 60px;
+ 	height: 60px;
+ 	display: flex;
+ 	align-items: center;
+ 	justify-content: center;
+ 	cursor: pointer;
+ 	user-select: none;
+ 	-webkit-user-select: none;
+ 	-webkit-touch-callout: none;
+ 	pointer-events: auto;
+ 	transition: all 0.1s ease;
+   }
+
+   .mobile-button:active {
+ 	background: rgba(255, 255, 255, 0.4);
+ 	transform: scale(0.95);
+   }
+
+   .mobile-button.left {
+ 	left: 20px;
+   }
+
+   .mobile-button.right {
+ 	left: 90px;
+   }
+
+   .mobile-button.jump {
+ 	right: 20px;
+ 	background: rgba(76, 175, 80, 0.3);
+ 	border-color: rgba(76, 175, 80, 0.6);
+   }
+
+   .mobile-button.jump:active {
+ 	background: rgba(76, 175, 80, 0.5);
+   }
+
+   /* Mostrar controles solo en móviles */
+   @media (max-width: 768px) and (hover: none) and (pointer: coarse) {
+ 	.mobile-controls {
+  	 display: flex;
+ 	}
+ 
+ 	canvas {
+  	 width: 100vw;
+  	 height: 100vh;
+  	 max-width: 512px;
+  	 max-height: 512px;
+ 	}
+   }
 </style>
 </head>
 <body>
 <canvas id="game" width="512" height="512"></canvas>
+
+<!-- Controles móviles -->
+<div class="mobile-controls" id="mobileControls">
+ <button class="mobile-button left" id="leftBtn">←</button>
+ <button class="mobile-button right" id="rightBtn">→</button>
+ <button class="mobile-button jump" id="jumpBtn">↑</button>
+</div>
 
 <script src="game.js"></script>
 </body>
