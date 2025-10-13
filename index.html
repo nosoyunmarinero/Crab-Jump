@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Crab Jump</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+   :root { 
+ 	--w: 512; 
+ 	--h: 512; 
+ 	--bg: #111; 
+   }
+
+   html, body {
+ 	height: 100%;
+ 	margin: 0;
+ 	background: var(--bg);
+ 	display: grid;
+ 	place-items: center;
+   }
+
+   canvas {
+ 	image-rendering: pixelated;
+ 	width: calc(var(--w) * 1px);
+ 	height: calc(var(--h) * 1px);
+ 	background: #1a1a1a;
+ 	border: 1px solid #333;
+ 	box-shadow: 0 0 24px rgba(0,0,0,0.6);
+   }
+</style>
+</head>
+<body>
+<canvas id="game" width="512" height="512"></canvas>
+
+<script src="game.js"></script>
+</body>
+</html>
