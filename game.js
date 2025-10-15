@@ -1397,8 +1397,9 @@ function setupMobileControls() {
  const mobileControls = document.getElementById('mobileControls');
  const leftBtn = document.getElementById('leftBtn');
  const rightBtn = document.getElementById('rightBtn');
+ const startBtn = document.getElementById('startBtn');
  
- if (!mobileControls || !leftBtn || !rightBtn) return;
+ if (!mobileControls || !leftBtn || !rightBtn || !startBtn) return;
  
  // Funciones auxiliares para simular teclas
  function simulateKeyDown(keyCode) {
@@ -1453,11 +1454,53 @@ function setupMobileControls() {
    simulateKeyUp('ArrowRight');
  });
 
+ function handleStartButton(e) {
+   e.preventDefault();
+   
+   // Si el juego está en game over, reiniciar directamente
+   if (game.gameOver) {
+     // Reiniciar el juego directamente sin simular teclas
+     game.start();
+   } 
+   // Si el juego no ha iniciado, iniciar
+   else if (!game.started) {
+     simulateKeyDown('Space');
+     setTimeout(() => simulateKeyUp('Space'), 100);
+   }
+   // Si el juego está pausado, reanudar
+   else if (game.paused) {
+     simulateKeyDown('Space');
+     setTimeout(() => simulateKeyUp('Space'), 100);
+   }
+   // Si el juego está activo, pausar
+   else {
+     simulateKeyDown('Space');
+     setTimeout(() => simulateKeyUp('Space'), 100);
+   }
+ }
  
+ startBtn.addEventListener('touchstart', handleStartButton);
+ startBtn.addEventListener('click', handleStartButton);
+ startBtn.addEventListener('touchend', (e) => {
+   e.preventDefault();
+   e.stopPropagation();
+ });
  
+ // Actualizar texto del botón según el estado del juego
+ setInterval(() => {
+   if (!game.started) {
+     startBtn.textContent = 'START';
+   } else if (game.gameOver) {
+     startBtn.textContent = 'RESTART';
+   } else if (game.paused) {
+     startBtn.textContent = 'RESUME';
+   } else {
+     startBtn.textContent = 'PAUSE';
+   }
+ }, 100);
  
  // Prevenir el menú contextual en botones
- [leftBtn, rightBtn].forEach(btn => {
+ [leftBtn, rightBtn, startBtn].forEach(btn => {
    btn.addEventListener('contextmenu', (e) => e.preventDefault());
  });
 }

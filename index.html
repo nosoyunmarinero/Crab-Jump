@@ -48,7 +48,7 @@
  	z-index: 1;
    }
 
-   /* Controles móviles */
+   /* Controles móviles - flechas */
    .mobile-controls {
 	display: none;
 	position: fixed;
@@ -64,8 +64,18 @@
 	margin-bottom: 215px;
    }
 
+   /* Botón START separado */
+   .mobile-start-container {
+	display: none;
+	position: fixed;
+	bottom: 80px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 1000;
+	pointer-events: none;
+   }
+
    .mobile-button {
- 	position: absolute;
  	background: rgba(255, 255, 255, 0.25);
  	border: 2px solid rgba(255, 255, 255, 0.5);
  	border-radius: 50%;
@@ -92,34 +102,52 @@
    }
 
    .mobile-button.left {
+	position: absolute;
 	left: 20px;
    }
 
    .mobile-button.right {
+	position: absolute;
 	right: 20px;
-	left: auto;
    }
 
-   .mobile-button.jump {
-	right: 0;
+   .mobile-button.start {
 	background: rgba(76, 175, 80, 0.35);
 	border-color: rgba(76, 175, 80, 0.7);
-	width: 65px;
-	height: 65px;
-	font-size: 24px;
+	width: 80px;
+	height: 80px;
+	font-size: 13px;
+	font-weight: bold;
    }
 
-   .mobile-button.jump:active {
+   .mobile-button.start:active {
  	background: rgba(76, 175, 80, 0.5);
+   }
+
+   /* Animación de parpadeo para el botón START cuando está en game over */
+   @keyframes pulse {
+ 	0% { transform: scale(1); }
+ 	50% { transform: scale(1.1); }
+ 	100% { transform: scale(1); }
+   }
+
+   .mobile-button.start.game-over {
+ 	animation: pulse 1s infinite;
+ 	background: rgba(255, 107, 107, 0.6);
+ 	border-color: rgba(255, 107, 107, 0.8);
+ 	color: #fff;
+ 	font-weight: bold;
+ 	transform: scale(1);
    }
 
    /* Mostrar controles solo en móviles */
    @media (max-width: 768px) and (hover: none) and (pointer: coarse) {
  	.mobile-controls {
-  	  display: flex;
-  	  justify-content: space-between;
-  	  align-items: center;
-  	  padding: 0 20px;
+  	  display: block;
+ 	}
+
+ 	.mobile-start-container {
+  	  display: block;
  	}
  
  	body {
@@ -139,16 +167,25 @@
  	.mobile-controls {
   	 bottom: calc(env(safe-area-inset-bottom) + 10px);
  	}
+ 	
+ 	.mobile-start-container {
+  	 bottom: calc(env(safe-area-inset-bottom) + 80px);
+ 	}
    }
 </style>
 </head>
 <body>
 <canvas id="game" width="512" height="512"></canvas>
 
-<!-- Controles móviles - solo izquierda y derecha -->
+<!-- Controles móviles - Flechas -->
 <div class="mobile-controls" id="mobileControls">
  <button class="mobile-button left" id="leftBtn">←</button>
  <button class="mobile-button right" id="rightBtn">→</button>
+</div>
+
+<!-- Botón START separado -->
+<div class="mobile-start-container">
+ <button class="mobile-button start" id="startBtn">START</button>
 </div>
 
 <script src="game.js"></script>
