@@ -1411,30 +1411,12 @@ function setupMobileControls() {
    e.preventDefault();
    simulateKeyUp('ArrowRight');
  });
+
  
- // Botón de salto
- jumpBtn.addEventListener('touchstart', (e) => {
-   e.preventDefault();
-   simulateKeyDown('Space');
- });
  
- jumpBtn.addEventListener('touchend', (e) => {
-   e.preventDefault();
-   simulateKeyUp('Space');
- });
- 
- jumpBtn.addEventListener('mousedown', (e) => {
-   e.preventDefault();
-   simulateKeyDown('Space');
- });
- 
- jumpBtn.addEventListener('mouseup', (e) => {
-   e.preventDefault();
-   simulateKeyUp('Space');
- });
  
  // Prevenir el menú contextual en botones
- [leftBtn, rightBtn, jumpBtn].forEach(btn => {
+ [leftBtn, rightBtn].forEach(btn => {
    btn.addEventListener('contextmenu', (e) => e.preventDefault());
  });
 }
