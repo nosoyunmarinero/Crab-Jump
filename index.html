@@ -18,15 +18,34 @@
  	display: grid;
  	place-items: center;
  	overflow: hidden;
+ 	position: relative;
+   }
+
+   /* Imagen de fondo */
+   body::before {
+ 	content: '';
+ 	position: fixed;
+ 	top: 0;
+ 	left: 0;
+ 	width: 100%;
+ 	height: 100%;
+ 	background-image: url('https://images.unsplash.com/photo-1535262412227-85541e910204?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1469');
+ 	background-size: cover;
+ 	background-position: center;
+ 	background-repeat: no-repeat;
+ 	opacity: 0.5;
+ 	z-index: 0;
    }
 
    canvas {
  	image-rendering: pixelated;
  	width: calc(var(--w) * 1px);
  	height: calc(var(--h) * 1px);
- 	background: #1a1a1a;
+ 	background: rgba(26, 26, 26, 0.85);
  	border: 1px solid #333;
  	box-shadow: 0 0 24px rgba(0,0,0,0.6);
+ 	position: relative;
+ 	z-index: 1;
    }
 
    /* Controles móviles */
