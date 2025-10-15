@@ -164,8 +164,7 @@ function draw() {
  // 👇 Información de rendimiento (opcional - puedes quitarlo en producción)
  ctx.fillStyle = "rgba(255,255,255,0.7)";
  ctx.font = "12px system-ui";
- ctx.fillText(`FPS: ${Math.round(1/deltaTime)}`, 10, 100);
- ctx.fillText(`Delta: ${(deltaTime*1000).toFixed(1)}ms`, 10, 115);
+ 
 
 
 // Overlay de Game Over
@@ -622,7 +621,13 @@ if (animation) {
      platform.image = img;
      platform.ready = false;
      img.onload = () => { platform.ready = true; };
+     img.onerror = () => { 
+       console.warn(`Error al cargar imagen de plataforma: ${src}`);
+       platform.ready = false; 
+     };
      img.src = src;
+   } else {
+     console.warn(`Plataforma ${typeKey} no tiene imagen válida`);
    }
  }
 
@@ -870,16 +875,21 @@ while (
      usedX.push(newX);
 
  	// randomType puede devolver un array (ej. ["spikesM","basicM"])
- 	const types = this.randomType({ allowSpikes: true });
+	const types = this.randomType({ allowSpikes: true });
 
      types.forEach((t, idx) => {
    	let finalX = newX;
 
-   	// Si es la segunda plataforma del combo, la desplazamos un poco
+   	// Si es la segunda plataforma del combo, la desplazamos con suficiente espacio
    	if (idx > 0) {
-         finalX += 100;
-     	if (finalX > canvasWidth - 64) {
-           finalX = newX - 100; // si se sale, la ponemos al otro lado
+         finalX += 164; // 64 (ancho plataforma) + 100 (espacio adicional)
+  	// Si se sale de la pantalla, intentar al otro lado
+  	if (finalX > canvasWidth - 64) {
+           finalX = newX - 164; // Colocar al lado izquierdo con suficiente espacio
+           // Si aún así se sale, forzar dentro de los límites
+           if (finalX < 0) {
+             finalX = Math.max(0, Math.min(canvasWidth - 64, finalX));
+           }
          }
        }
 
@@ -930,12 +940,16 @@ draw(ctx) {
  ctx.lineWidth = this.deathLine.thickness;
  ctx.stroke();
 
-// Plataformas
+// Plataformas - Solo renderizar plataformas válidas
 this.platforms.forEach(p => {
-   if (p.animation) {
+   // Verificar que la plataforma tenga algo que renderizar
+   const hasAnimation = p.animation && p.animation.image && p.animation.image.complete;
+   const hasImage = p.image && p.ready && p.image.complete;
+   
+   if (hasAnimation) {
      p.animation.update(1/60); // Delta time fijo para animaciones en draw
      p.animation.draw(ctx, p.x, p.y - this.cameraY, p.width, p.height);
-   } else if (p.image && p.ready && p.image.complete) {
+   } else if (hasImage) {
  	if (!p.spawnTime) p.spawnTime = Date.now();
  	const elapsed = Date.now() - p.spawnTime;
  	const fadeDuration = 200;
@@ -946,6 +960,7 @@ this.platforms.forEach(p => {
      ctx.drawImage(p.image, p.x, p.y - this.cameraY, p.width, p.height);
      ctx.restore();
    }
+   // Si no tiene animación ni imagen válida, no se renderiza
 
    if (this.debug) {
  	const offsetTop = p.collisionOffsetTop || 0;
@@ -1014,6 +1029,21 @@ this.platforms.forEach(p => {
 // ====== Eliminar plataforma (ej. frágiles) ======
 removePlatform(platform) {
    this.platforms = this.platforms.filter(p => p !== platform);
+ }
+
+// ====== Limpiar plataformas inválidas ======
+cleanupInvalidPlatforms() {
+   this.platforms = this.platforms.filter(p => {
+     const hasValidAnimation = p.animation && p.animation.image && p.animation.image.complete;
+     const hasValidImage = p.image && p.ready && p.image.complete;
+     const hasVisualContent = hasValidAnimation || hasValidImage;
+     
+     if (!hasVisualContent) {
+       console.warn(`Plataforma ${p.type} en (${p.x}, ${p.y}) eliminada por falta de contenido visual`);
+     }
+     
+     return hasVisualContent;
+   });
  }
 }
 
@@ -1147,6 +1177,9 @@ spikesL: {
 superM: {
    width: 64,
    height: 64,
+   srcs: [
+ 	"./src/platforms/PlatM/SuperJump_Red_M.png",
+   ],
    bounceForce: -23,
    collisionOffsetTop: 30,
    collisionOffsetLeft: 15,
@@ -1163,6 +1196,10 @@ superM: {
 superS: {
    width: 64,
    height: 64,
+   srcs: [
+ 	"./src/platforms/PlatS/SuperJump_Red_S.png",
+ 	"./src/platforms/PlatS/SuperJump_Blue_S.png",
+   ],
    bounceForce: -23,
    collisionOffsetTop: 30,
    collisionOffsetLeft: 20,
@@ -1179,6 +1216,9 @@ superS: {
 superL: {
    width: 64,
    height: 64,
+   srcs: [
+ 	"./src/platforms/PlatL/SuperJump_Blue_L.png",
+   ],
    bounceForce: -23,
    collisionOffsetTop: 30,
    collisionOffsetLeft: 10,
@@ -1313,6 +1353,7 @@ dead: new Animation({ src: "./src/Player/zuluzulu-defeated.png", frames: 9, inte
 const platformsAnimation = {
 superS: new Animation({ src: "./src/platforms/PlatS/SuperJump_Red_S.png", frames:2, interval:12}),
 superM: new Animation({ src: "./src/platforms/PlatM/SuperJump_Red_M.png", frames:2, interval:12}),
+superL: new Animation({ src: "./src/platforms/PlatL/SuperJump_Blue_L.png", frames:2, interval:12}),
 }
 
 //Animacion de logo - COMENTADO temporalmente
