@@ -70,31 +70,38 @@ for (let i = 1; i < 6; i++) {
 
  	const types = this.randomType({ allowSpikes: false });
      types.forEach((t, idx) => {
-   	let finalX = newX;
-   	if (idx > 0) {
-         finalX += 100;
-     	if (finalX > canvasWidth - platformWidth) finalX = newX - 100;
-       }
+  let finalX = newX;
 
-   	const platform = this.createPlatform(t, finalX, newY);
-   	this.platforms.push(platform);
+  // Si es la segunda plataforma del combo, la desplazamos con suficiente espacio
+  if (idx > 0) {
+    const minSeparation = 80; // 👈 AGREGAR: separación mínima entre plataformas del combo
+    finalX += platformWidth + minSeparation; // 64 + 80 = 144 píxeles de separación
+    
+    // Si se sale de la pantalla, intentar al otro lado
+    if (finalX > canvasWidth - platformWidth) {
+      finalX = newX - (platformWidth + minSeparation);
+      // Si aún así se sale, forzar dentro de los límites
+      if (finalX < 0) {
+        finalX = Math.max(0, Math.min(canvasWidth - platformWidth, newX));
+      }
+    }
+  }
 
-   	// 👇 Generar monedas solo si la plataforma está en pantalla
-   	if (
-         platform.y >= this.cameraY &&
-         platform.y <= this.cameraY + this.canvasHeight
-       ) {
-     	if (Math.random() < objects.coin.probability) {
-       	this.objects.push({
-             ...objects.coin,
-         	x: platform.x + platform.width / 2 - objects.coin.width / 2,
-         	y: platform.y - objects.coin.height,
-         	frameIndex: 0,
-         	tick: 0
-           });
-         }
-       }
-     });
+  const platform = this.createPlatform(t, finalX, newY);
+  this.platforms.push(platform);
+
+  // 👇 Generar monedas en plataformas nuevas
+  if (Math.random() < objects.coin.probability) {
+    this.objects.push({
+      ...objects.coin,
+      x: platform.x + platform.width / 2 - objects.coin.width / 2,
+      y: platform.y - objects.coin.height,
+      frameIndex: 0,
+      tick: 0,
+      type: "coin" 
+    });
+  }
+});
    }
  }
 }
