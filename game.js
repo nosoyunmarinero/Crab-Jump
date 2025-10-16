@@ -1,8 +1,7 @@
-// =========== FRAME-RATE INDEPENDENT GAME SYSTEM ===============
-// Este juego ahora usa un sistema de tiempo delta para ser independiente de los FPS
-// Los valores de física y movimiento se normalizan a 60 FPS como base
-// Esto significa que el juego correrá a la misma velocidad en todas las máquinas
-// sin importar si tienen 30, 60, 120 o más FPS
+import Controls from "./src/modules/Controls.js";
+
+
+
 
 window.addEventListener("load", () => {
 const canvas = document.getElementById("game");
@@ -40,6 +39,8 @@ started: false,
 distance: 0,   	// 👈 distancia actual
 maxDistance: savedMaxDistance ? parseInt(savedMaxDistance) : 0, // 👈 carga récord
 globalCoins: savedGlobalCoins ? parseInt(savedGlobalCoins) : 0,// 👈 carga Coins
+
+
 
 end() {
 if (this.gameOver) return;
@@ -90,12 +91,11 @@ this.startY = player.y;
 }
 };
 
-
 const player = new Player(50, 50, 32, 32, canvas.height, canvas.width, playerAnimations);
 
-// Variables de tiempo para el jugador
-let playerLastTime = 0;
-const controls = new Controls();
+
+//Instancia de controls
+const controls = new Controls(game);
 window.addEventListener("keydown", (e) => {
 if (e.key === "Escape") {
    game.togglePause();
@@ -107,6 +107,7 @@ if (e.key.toLowerCase() === "r" && game.gameOver) {
    game.start()
  }
 });
+
 const level = new Level({
 onGameOver: () => {
    game.end()
@@ -184,15 +185,6 @@ if (game.gameOver) {
      canvas.width / 2,
      canvas.height / 2 + 40
    );
-   // Detectar si es móvil
-   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-				window.matchMedia('(max-width: 768px) and (hover: none) and (pointer: coarse)').matches ||
-				('ontouchstart' in window) ||
-				(navigator.maxTouchPoints > 0);
-   
-   const restartMessage = isMobile ? "TOCA LA PANTALLA PARA REINICIAR" : "PRESIONA R PARA REINICIAR";
-   ctx.fillText(restartMessage, canvas.width / 2, canvas.height / 2 + 80);
-   ctx.restore();
  }
    // 👇 Overlay de Pausa
 if (game.paused && !game.gameOver) {
@@ -213,16 +205,6 @@ if (!game.started && !game.gameOver) {
  ctx.fillStyle = "#fff";
  ctx.font = "bold 18px system-ui";
  ctx.textAlign = "center";
- 
- // Detectar si es móvil
- const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-			   window.matchMedia('(max-width: 768px) and (hover: none) and (pointer: coarse)').matches ||
-			   ('ontouchstart' in window) ||
-			   (navigator.maxTouchPoints > 0);
- 
- const message = isMobile ? "TOCA LA PANTALLA PARA JUGAR" : "PRESIONA SPACE PARA JUGAR";
- ctx.fillText(message, canvas.width / 2, canvas.height / 2);
- ctx.restore();
 }
 
 }
@@ -348,25 +330,6 @@ requestAnimationFrame(loop);
  bg.onload = () => requestAnimationFrame(loop);
 });
 
-// =================== CONTROLS =================
-// controls.js
-class Controls {
-constructor() {
-   this.keys = { left: false, right: false, up: false };
-
-   window.addEventListener("keydown", (e) => {
- 	if (e.code === "ArrowLeft" || e.code === "KeyA") this.keys.left = true;
- 	if (e.code === "ArrowRight" || e.code === "KeyD") this.keys.right = true;
- 	if (e.code === "Space" || e.code === "ArrowUp" || e.code === "KeyW") this.keys.up = true;
-   });
-
-   window.addEventListener("keyup", (e) => {
- 	if (e.code === "ArrowLeft" || e.code === "KeyA") this.keys.left = false;
- 	if (e.code === "ArrowRight" || e.code === "KeyD") this.keys.right = false;
- 	if (e.code === "Space" || e.code === "ArrowUp" || e.code === "KeyW") this.keys.up = false;
-   });
- }
-}
 
 //========================== Player =========================
 // player.js
@@ -904,7 +867,7 @@ this.objects.push({
    y: platform.y - objects.coin.height,
    frameIndex: 0,
    tick: 0,
-   type: "coin" // 👈 importante para que drawObjects la reconozca
+   type: "coin" 
  });
 }
      });
@@ -1383,134 +1346,3 @@ let loaded = 0;
  });
 }
 
-// ======= CONTROLES MÓVILES =======
-// Sistema de controles táctiles para dispositivos móviles
-function setupMobileControls() {
- // Verificar si es un dispositivo móvil (múltiples métodos)
- const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-         	  window.matchMedia('(max-width: 768px) and (hover: none) and (pointer: coarse)').matches ||
-         	  ('ontouchstart' in window) ||
-         	  (navigator.maxTouchPoints > 0);
- 
- if (!isMobile) return;
- 
- const mobileControls = document.getElementById('mobileControls');
- const leftBtn = document.getElementById('leftBtn');
- const rightBtn = document.getElementById('rightBtn');
- const startBtn = document.getElementById('startBtn');
- 
- if (!mobileControls || !leftBtn || !rightBtn || !startBtn) return;
- 
- // Funciones auxiliares para simular teclas
- function simulateKeyDown(keyCode) {
-   const event = new KeyboardEvent('keydown', { code: keyCode });
-   window.dispatchEvent(event);
- }
- 
- function simulateKeyUp(keyCode) {
-   const event = new KeyboardEvent('keyup', { code: keyCode });
-   window.dispatchEvent(event);
- }
- 
- // Botón izquierdo
- leftBtn.addEventListener('touchstart', (e) => {
-   e.preventDefault();
-   simulateKeyDown('ArrowLeft');
- });
- 
- leftBtn.addEventListener('touchend', (e) => {
-   e.preventDefault();
-   simulateKeyUp('ArrowLeft');
- });
- 
- leftBtn.addEventListener('mousedown', (e) => {
-   e.preventDefault();
-   simulateKeyDown('ArrowLeft');
- });
- 
- leftBtn.addEventListener('mouseup', (e) => {
-   e.preventDefault();
-   simulateKeyUp('ArrowLeft');
- });
- 
- // Botón derecho
- rightBtn.addEventListener('touchstart', (e) => {
-   e.preventDefault();
-   simulateKeyDown('ArrowRight');
- });
- 
- rightBtn.addEventListener('touchend', (e) => {
-   e.preventDefault();
-   simulateKeyUp('ArrowRight');
- });
- 
- rightBtn.addEventListener('mousedown', (e) => {
-   e.preventDefault();
-   simulateKeyDown('ArrowRight');
- });
- 
- rightBtn.addEventListener('mouseup', (e) => {
-   e.preventDefault();
-   simulateKeyUp('ArrowRight');
- });
-
- function handleStartButton(e) {
-   e.preventDefault();
-   
-   // Si el juego está en game over, reiniciar directamente
-   if (game.gameOver) {
-     // Reiniciar el juego directamente sin simular teclas
-     game.start();
-   } 
-   // Si el juego no ha iniciado, iniciar
-   else if (!game.started) {
-     simulateKeyDown('Space');
-     setTimeout(() => simulateKeyUp('Space'), 100);
-   }
-   // Si el juego está pausado, reanudar
-   else if (game.paused) {
-     simulateKeyDown('Space');
-     setTimeout(() => simulateKeyUp('Space'), 100);
-   }
-   // Si el juego está activo, pausar
-   else {
-     simulateKeyDown('Space');
-     setTimeout(() => simulateKeyUp('Space'), 100);
-   }
- }
- 
- startBtn.addEventListener('touchstart', handleStartButton);
- startBtn.addEventListener('click', handleStartButton);
- startBtn.addEventListener('touchend', (e) => {
-   e.preventDefault();
-   e.stopPropagation();
- });
- 
- // Actualizar texto del botón según el estado del juego
- setInterval(() => {
-   if (!game.started) {
-     startBtn.textContent = 'START';
-   } else if (game.gameOver) {
-     startBtn.textContent = 'RESTART';
-   } else if (game.paused) {
-     startBtn.textContent = 'RESUME';
-   } else {
-     startBtn.textContent = 'PAUSE';
-   }
- }, 100);
- 
- // Prevenir el menú contextual en botones
- [leftBtn, rightBtn, startBtn].forEach(btn => {
-   btn.addEventListener('contextmenu', (e) => e.preventDefault());
- });
-}
-
-// Inicializar controles móviles cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', setupMobileControls);
-
-// También intentar inicializar cuando el script se carga (por si acaso)
-if (document.readyState === 'loading') {
- document.addEventListener('DOMContentLoaded', setupMobileControls);
-} else {
- setupMobileControls();
-}

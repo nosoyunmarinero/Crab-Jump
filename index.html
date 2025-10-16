@@ -64,13 +64,27 @@
 	margin-bottom: 215px;
    }
 
-   /* Botón START separado */
+   /* Botón START/RESTART separado */
    .mobile-start-container {
 	display: none;
 	position: fixed;
 	bottom: 80px;
 	left: 50%;
 	transform: translateX(-50%);
+	z-index: 1000;
+	pointer-events: none;
+	gap: 15px;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+   }
+
+   /* Botón de PAUSA - arriba a la izquierda */
+   .mobile-pause-container {
+	display: none;
+	position: fixed;
+	top: 20px;
+	left: 20px;
 	z-index: 1000;
 	pointer-events: none;
    }
@@ -111,7 +125,8 @@
 	right: 20px;
    }
 
-   .mobile-button.start {
+   .mobile-button.start,
+   .mobile-button.restart {
 	background: rgba(76, 175, 80, 0.35);
 	border-color: rgba(76, 175, 80, 0.7);
 	width: 80px;
@@ -120,8 +135,30 @@
 	font-weight: bold;
    }
 
-   .mobile-button.start:active {
+   .mobile-button.start:active,
+   .mobile-button.restart:active {
  	background: rgba(76, 175, 80, 0.5);
+   }
+
+   .mobile-button.restart {
+	background: rgba(255, 152, 0, 0.35);
+	border-color: rgba(255, 152, 0, 0.7);
+   }
+
+   .mobile-button.restart:active {
+	background: rgba(255, 152, 0, 0.5);
+   }
+
+   .mobile-button.pause {
+	background: rgba(33, 150, 243, 0.35);
+	border-color: rgba(33, 150, 243, 0.7);
+	width: 55px;
+	height: 55px;
+	font-size: 18px;
+   }
+
+   .mobile-button.pause:active {
+	background: rgba(33, 150, 243, 0.5);
    }
 
    /* Animación de parpadeo para el botón START cuando está en game over */
@@ -147,6 +184,10 @@
  	}
 
  	.mobile-start-container {
+  	  display: flex;
+ 	}
+
+ 	.mobile-pause-container {
   	  display: block;
  	}
  
@@ -171,6 +212,10 @@
  	.mobile-start-container {
   	 bottom: calc(env(safe-area-inset-bottom) + 80px);
  	}
+
+ 	.mobile-pause-container {
+  	 top: calc(env(safe-area-inset-top) + 20px);
+ 	}
    }
 </style>
 </head>
@@ -183,11 +228,17 @@
  <button class="mobile-button right" id="rightBtn">→</button>
 </div>
 
-<!-- Botón START separado -->
-<div class="mobile-start-container">
- <button class="mobile-button start" id="startBtn">START</button>
+<!-- Botón de PAUSA - arriba a la izquierda -->
+<div class="mobile-pause-container">
+ <button class="mobile-button pause" id="pauseBtn">||</button>
 </div>
 
-<script src="game.js"></script>
+<!-- Botones START/RESTART - abajo al centro -->
+<div class="mobile-start-container">
+ <button class="mobile-button start" id="startBtn">START</button>
+ <button class="mobile-button restart" id="restartBtn" style="display: none;">RESTART</button>
+</div>
+
+<script src="game.js" type="module"></script>
 </body>
 </html>
