@@ -8,216 +8,181 @@
 
 <style>
    :root { 
- 	--w: 512; 
- 	--h: 512; 
- 	--bg: #111; 
+    --w: 512; 
+    --h: 512; 
+    --bg: #111; 
    }
 
    html, body {
- 	height: 100%;
- 	margin: 0;
- 	background: var(--bg);
- 	display: grid;
- 	place-items: center;
- 	overflow: hidden;
- 	position: relative;
+    height: 100%;
+    margin: 0;
+    background: var(--bg);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    position: relative;
    }
 
-   /* Imagen de fondo */
    body::before {
- 	content: '';
- 	position: fixed;
- 	top: 0;
- 	left: 0;
- 	width: 100%;
- 	height: 100%;
- 	background-image: url('https://images.unsplash.com/photo-1535262412227-85541e910204?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1469');
- 	background-size: cover;
- 	background-position: center;
- 	background-repeat: no-repeat;
- 	opacity: 0.5;
- 	z-index: 0;
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('https://images.unsplash.com/photo-1535262412227-85541e910204?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=1469');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.5;
+    z-index: 0;
    }
 
    canvas {
- 	image-rendering: pixelated;
- 	width: calc(var(--w) * 1px);
- 	height: calc(var(--h) * 1px);
- 	background: rgba(26, 26, 26, 0.85);
- 	border: 1px solid #333;
- 	box-shadow: 0 0 24px rgba(0,0,0,0.6);
- 	position: relative;
- 	z-index: 1;
+    image-rendering: pixelated;
+    width: calc(var(--w) * 1px);
+    height: calc(var(--h) * 1px);
+    background: rgba(26, 26, 26, 0.85);
+    border: 1px solid #333;
+    box-shadow: 0 0 24px rgba(0,0,0,0.6);
+    position: relative;
+    z-index: 1;
    }
 
    /* Controles móviles - flechas */
    .mobile-controls {
-	display: none;
-	position: fixed;
-	bottom: 20px;
-	left: 50%;
-	transform: translateX(-50%);
-	z-index: 1000;
-	pointer-events: none;
-	width: 100%;
-	max-width: 512px;
-	padding: 0 20px;
-	box-sizing: border-box;
-	margin-bottom: 215px;
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    pointer-events: none;
+    width: 100%;
+    max-width: 512px;
+    padding: 0 20px;
+    box-sizing: border-box;
+    margin-bottom: 215px;
    }
 
-   /* Botón START/RESTART separado */
+   /* Botón START/RESTART */
    .mobile-start-container {
-	display: none;
-	position: fixed;
-	bottom: 80px;
-	left: 50%;
-	transform: translateX(-50%);
-	z-index: 1000;
-	pointer-events: none;
-	gap: 15px;
-	flex-direction: row;
-	align-items: center;
-	justify-content: center;
+    display: none;
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    pointer-events: none;
+    gap: 15px;
+    flex-direction: column; /* 👈 en columna para que TIENDA quede debajo de START */
+    align-items: center;
+    justify-content: center;
    }
 
    /* Botón de PAUSA - arriba a la izquierda */
    .mobile-pause-container {
-	display: none;
-	position: fixed;
-	top: 20px;
-	left: 20px;
-	z-index: 1000;
-	pointer-events: none;
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    pointer-events: none;
+    flex-direction: column;
+    gap: 10px;
    }
 
    .mobile-button {
- 	background: rgba(255, 255, 255, 0.25);
- 	border: 2px solid rgba(255, 255, 255, 0.5);
- 	border-radius: 50%;
- 	color: white;
- 	font-size: 20px;
- 	font-weight: bold;
- 	width: 65px;
- 	height: 65px;
- 	display: flex;
- 	align-items: center;
- 	justify-content: center;
- 	cursor: pointer;
- 	user-select: none;
- 	-webkit-user-select: none;
- 	-webkit-touch-callout: none;
- 	pointer-events: auto;
- 	transition: all 0.1s ease;
- 	-webkit-tap-highlight-color: transparent;
+    background: rgba(255, 255, 255, 0.25);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    width: 80px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    pointer-events: auto;
+    transition: all 0.1s ease;
    }
 
    .mobile-button:active {
- 	background: rgba(255, 255, 255, 0.4);
- 	transform: scale(0.9);
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(0.9);
    }
 
    .mobile-button.left {
-	position: absolute;
-	left: 20px;
+    position: absolute;
+    left: 20px;
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
    }
 
    .mobile-button.right {
-	position: absolute;
-	right: 20px;
+    position: absolute;
+    right: 20px;
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
    }
 
    .mobile-button.start,
    .mobile-button.restart {
-	background: rgba(76, 175, 80, 0.35);
-	border-color: rgba(76, 175, 80, 0.7);
-	width: 80px;
-	height: 80px;
-	font-size: 13px;
-	font-weight: bold;
-   }
-
-   .mobile-button.start:active,
-   .mobile-button.restart:active {
- 	background: rgba(76, 175, 80, 0.5);
+    background: rgba(76, 175, 80, 0.35);
+    border-color: rgba(76, 175, 80, 0.7);
    }
 
    .mobile-button.restart {
-	background: rgba(255, 152, 0, 0.35);
-	border-color: rgba(255, 152, 0, 0.7);
-   }
-
-   .mobile-button.restart:active {
-	background: rgba(255, 152, 0, 0.5);
+    background: rgba(255, 152, 0, 0.35);
+    border-color: rgba(255, 152, 0, 0.7);
    }
 
    .mobile-button.pause {
-	background: rgba(33, 150, 243, 0.35);
-	border-color: rgba(33, 150, 243, 0.7);
-	width: 55px;
-	height: 55px;
-	font-size: 18px;
+    background: rgba(33, 150, 243, 0.35);
+    border-color: rgba(33, 150, 243, 0.7);
+    width: 55px;
+    height: 55px;
+    font-size: 18px;
    }
 
-   .mobile-button.pause:active {
-	background: rgba(33, 150, 243, 0.5);
+   /* Botones de la tienda */
+   #shopOpenBtn,
+   #shopBuyBtn {
+     display: none;
+     width: 120px;
+     height: 50px;
+     background: rgba(76, 175, 80, 0.35);
+     border: 2px solid rgba(76, 175, 80, 0.7);
+     border-radius: 12px;
+     font-size: 14px;
    }
 
-   /* Animación de parpadeo para el botón START cuando está en game over */
-   @keyframes pulse {
- 	0% { transform: scale(1); }
- 	50% { transform: scale(1.1); }
- 	100% { transform: scale(1); }
+   #shopBackBtn {
+     display: none;
+     background: rgba(244, 67, 54, 0.35);
+     border: 2px solid rgba(244, 67, 54, 0.7);
+     border-radius: 12px;
+     width: 55px;
+     height: 55px;
+     font-size: 18px;
    }
 
-   .mobile-button.start.game-over {
- 	animation: pulse 1s infinite;
- 	background: rgba(255, 107, 107, 0.6);
- 	border-color: rgba(255, 107, 107, 0.8);
- 	color: #fff;
- 	font-weight: bold;
- 	transform: scale(1);
-   }
-
-   /* Mostrar controles solo en móviles */
    @media (max-width: 768px) and (hover: none) and (pointer: coarse) {
- 	.mobile-controls {
-  	  display: block;
- 	}
-
- 	.mobile-start-container {
-  	  display: flex;
- 	}
-
- 	.mobile-pause-container {
-  	  display: block;
- 	}
- 
- 	body {
-  	  padding-bottom: 0;
- 	}
- 
- 	canvas {
-  	  width: 100vw;
-  	  height: 100vh;
-  	  max-width: 512px;
-  	  max-height: 512px;
- 	}
-   }
-
-   /* Soporte para iPhone con notch */
-   @supports (padding-bottom: env(safe-area-inset-bottom)) {
- 	.mobile-controls {
-  	 bottom: calc(env(safe-area-inset-bottom) + 10px);
- 	}
- 	
- 	.mobile-start-container {
-  	 bottom: calc(env(safe-area-inset-bottom) + 80px);
- 	}
-
- 	.mobile-pause-container {
-  	 top: calc(env(safe-area-inset-top) + 20px);
- 	}
+    .mobile-controls { display: block; }
+    .mobile-start-container { display: flex; }
+    .mobile-pause-container { display: flex; }
+    body { padding-bottom: 0; }
+    canvas {
+      width: 100vw;
+      height: 100vh;
+      max-width: 512px;
+      max-height: 512px;
+    }
    }
 </style>
 </head>
@@ -230,15 +195,18 @@
  <button class="mobile-button right" id="rightBtn">→</button>
 </div>
 
-<!-- Botón de PAUSA - arriba a la izquierda -->
+<!-- Botón de PAUSA y REGRESAR -->
 <div class="mobile-pause-container">
  <button class="mobile-button pause" id="pauseBtn">||</button>
+ <button class="mobile-button pause" id="shopBackBtn">←</button>
 </div>
 
-<!-- Botones START/RESTART - abajo al centro -->
+<!-- Botones START/RESTART/TIENDA/COMPRAR -->
 <div class="mobile-start-container">
  <button class="mobile-button start" id="startBtn">START</button>
- <button class="mobile-button restart" id="restartBtn" style="display: none;">RESTART</button>
+ <button class="mobile-button restart" id="restartBtn" style="display:none;">RESTART</button>
+ <button class="mobile-button start" id="shopOpenBtn">TIENDA</button>
+ <button class="mobile-button start" id="shopBuyBtn">COMPRAR</button>
 </div>
 
 <script src="game.js" type="module"></script>

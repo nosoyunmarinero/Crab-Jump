@@ -148,7 +148,7 @@ openShop() {
 
     this.shopMessage = "";
   } else {
-    if (result.message === "Monedas insuficientes") {
+    if (result.message === "Monedas insuficientes :(") {
       this.shopMessage = result.message;
     } else {
       this.shopMessage = "";
@@ -401,20 +401,21 @@ function drawShop(ctx) {
 
   // Botones
   const canAfford = game.globalCoins >= skin.price;
+  const centerX = canvas.width / 2;
 
   if (skin.unlocked && game.selectedSkin !== skin.id) {
     ctx.fillStyle = "rgba(76,175,80,0.7)";
-    ctx.fillRect(canvas.width / 2 - 80, 330, 160, 40);
+    ctx.fillRect(centerX - 60, 330, 120, 40);
     ctx.fillStyle = "#fff";
     ctx.font = "bold 16px system-ui";
-    ctx.fillText("C PARA EQUIPAR", canvas.width / 2, 357);
+    ctx.fillText("EQUIPAR", centerX, 357);
   } else if (!skin.unlocked) {
-  ctx.fillStyle = canAfford ? "rgba(255,193,7,0.7)" : "rgba(100,100,100,0.7)";
-  ctx.fillRect(canvas.width / 2 - 80, 330, 160, 40);
-  ctx.fillStyle = "#fff";
-  ctx.font = "bold 16px system-ui";
-  ctx.fillText("C PARA COMPRAR", canvas.width / 2, 357);
-}
+    ctx.fillStyle = canAfford ? "rgba(255,193,7,0.7)" : "rgba(100,100,100,0.7)";
+    ctx.fillRect(centerX - 80, 330, 160, 40);
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 16px system-ui";
+    ctx.fillText("C PARA COMPRAR", centerX, 357);
+  }
 
   // Flechas del carrusel
   ctx.font = "bold 40px system-ui";
@@ -424,19 +425,30 @@ function drawShop(ctx) {
 
   // Botón volver
   ctx.fillStyle = "rgba(244,67,54,0.7)";
-  ctx.fillRect(canvas.width / 2 - 60, canvas.height - 60, 120, 40);
+  ctx.fillRect(centerX - 60, canvas.height - 60, 120, 40);
   ctx.fillStyle = "#fff";
   ctx.font = "bold 16px system-ui";
-  ctx.fillText("B para regresar", canvas.width / 2, canvas.height - 35);
+  ctx.fillText("B para regresar", centerX, canvas.height - 35);
 
   // 👇 Mensaje de feedback de la tienda
   if (game.shopMessage) {
     ctx.fillStyle = "#ff4444"; // rojo para errores
     ctx.font = "bold 18px system-ui";
     ctx.textAlign = "center";
-    ctx.fillText(game.shopMessage, canvas.width / 2, canvas.height - 100);
+    ctx.fillText(game.shopMessage, centerX, canvas.height - 100);
   }
+
+  // === ÁREAS TÁCTILES PARA MOBILE ===
+  game.shopButtons = {
+    left: { x: 80 - 20, y: canvas.height / 2 - 20, w: 40, h: 40 },
+    right: { x: canvas.width - 80 - 20, y: canvas.height / 2 - 20, w: 40, h: 40 },
+    back: { x: centerX - 60, y: canvas.height - 60, w: 120, h: 40 },
+    buy: { x: centerX - 80, y: 330, w: 160, h: 40 },
+    equip: { x: centerX - 60, y: 330, w: 120, h: 40 },
+    currentUnlocked: !!skin.unlocked
+  };
 }
+
 
 
 function loop(currentTime) {

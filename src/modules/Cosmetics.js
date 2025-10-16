@@ -17,7 +17,7 @@ export const cosmetics = {
   zm_crab: {
     id: "zm_crab",
     name: "Zombie Crab",
-    price: 10,
+    price: 1000,
     rarity: "common",
     unlocked: false,
     animations: zombieAnimations,
