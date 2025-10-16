@@ -13,6 +13,7 @@ constructor({ onGameOver, canvasHeight } = {}) {
    this.objects = [];   // aquí guardaremos monedas y otros consumibles
    this.coins = 0;  	// contador global de monedas
    this.coinImage = new Image();
+   this.coinImage.src = objects.coin.src; 
 
 
    this.platforms = [];
