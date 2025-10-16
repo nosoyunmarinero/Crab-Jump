@@ -2,6 +2,15 @@ import Controls from "./src/modules/Controls.js";
 import Player from "./src/modules/Player.js";
 import Level from "./src/modules/Level.js";
 import { playerAnimations } from "./src/modules/Animation.js";
+import {
+  cosmetics,
+  rarityColors, 
+  getCosmeticsSorted, 
+  loadSelectedSkin,
+  loadUnlockedSkins,
+  saveSelectedSkin,
+  unlockSkin,
+} from "./src/modules/Cosmetics.js";
 
 window.addEventListener("load", () => {
 const canvas = document.getElementById("game");
@@ -39,6 +48,8 @@ started: false,
 distance: 0,   	// 👈 distancia actual
 maxDistance: savedMaxDistance ? parseInt(savedMaxDistance) : 0, // 👈 carga récord
 globalCoins: savedGlobalCoins ? parseInt(savedGlobalCoins) : 0,// 👈 carga Coins
+ selectedSkin: loadSelectedSkin(),
+ currentSkinIndex: 0,
 
 
 
@@ -70,6 +81,13 @@ this.paused = false;
 this.started = true;
 this.state = "playing";
 this.distance = 0;
+
+  // 👇 aplicar skin seleccionado
+  const skin = cosmetics[this.selectedSkin];
+  if (skin) {
+    player.animations = skin.animations;
+    player.setAnimation("idle");
+  }
  level.resetObstacles();
 
 // Reposicionar jugador al inicio
@@ -87,9 +105,60 @@ this.startY = player.y;
  level.coins = 0;      	// 👈 reiniciar contador de monedas
  level.generateInitialPlatforms();
 
-// No necesitamos remover clases, el tap en pantalla maneja el reinicio
+},
+
+openShop() {
+    this.state = "shop";
+  },
+
+   closeShop() {
+    this.state = "menu";
+    this.shopMessage ="";
+  },
+  getSkins() {
+  return getCosmeticsSorted();
+},
+
+
+  attemptPurchaseOrEquip() {
+  const skins = this.getSkins();
+  const skin = skins[this.currentSkinIndex];
+  if (!skin) return;
+
+  if (skin.unlocked) {
+  this.selectedSkin = skin.id;
+  saveSelectedSkin(skin.id);
+
+  // 👇 actualizar animaciones del player
+  player.animations = skin.animations;
+  player.setAnimation("idle");
+
+  this.shopMessage = "";
+} else {
+  const result = unlockSkin(skin.id, this.globalCoins);
+  if (result.success) {
+    this.globalCoins = result.newCoins;
+    this.selectedSkin = skin.id;
+    saveSelectedSkin(skin.id);
+    localStorage.setItem("globalCoins", this.globalCoins);
+
+    // 👇 actualizar animaciones del player
+    player.animations = skin.animations;
+    player.setAnimation("idle");
+
+    this.shopMessage = "";
+  } else {
+    if (result.message === "Monedas insuficientes") {
+      this.shopMessage = result.message;
+    } else {
+      this.shopMessage = "";
+    }
+  }
 }
+},
 };
+
+loadUnlockedSkins();
 
 const player = new Player(50, 50, 32, 32, canvas.height, canvas.width, playerAnimations);
 
@@ -199,94 +268,176 @@ if (!game.started && !game.gameOver) {
 }
 
 function drawMenu(ctx) {
-// Fondo
- ctx.drawImage(menuBackground, 0, 0, canvas.width, canvas.height);
+  // Fondo
+  ctx.drawImage(menuBackground, 0, 0, canvas.width, canvas.height);
 
-// Logo animado
- // logoAnimation.draw(ctx, 10, 10, 64, 64);
+  // Título con sombra
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 40px system-ui";
+  ctx.textAlign = "center";
+  ctx.shadowColor = "black";
+  ctx.shadowBlur = 4;
+  ctx.shadowOffsetX = 2;
+  ctx.shadowOffsetY = 2;
+  ctx.fillText("Crab Jump", canvas.width / 2, 150);
 
-// Título con sombra
- ctx.fillStyle = "#fff";
- ctx.font = "bold 40px system-ui";
- ctx.textAlign = "center";
- ctx.shadowColor = "black";
- ctx.shadowBlur = 4;
- ctx.shadowOffsetX = 2;
- ctx.shadowOffsetY = 2;
- ctx.fillText("Crab Jump", canvas.width / 2, 150);
+  // 👇 Animación del personaje en salto (usando skin seleccionado)
+  const skin = cosmetics[game.selectedSkin];
+  if (skin) {
+    const anim = skin.animations.jump;
+    anim.update(1 / 60); // Delta fijo para menú
+    anim.draw(ctx, canvas.width / 2 - 32, 200, 64, 64);
+  }
 
-// 👇 Animación del personaje en salto (centrado debajo del título)
- player.currentAnimation = playerAnimations.jump;
- player.currentAnimation.update(1/60); // Delta time fijo para menú
- player.currentAnimation.draw(ctx, canvas.width / 2 - 32, 200, 64, 64);
+  // 👇 Mostrar récord y monedas
+  ctx.font = "20px system-ui";
+  ctx.fillStyle = "#fff";
+  ctx.shadowColor = "black";
+  ctx.shadowBlur = 3;
+  ctx.shadowOffsetX = 2;
+  ctx.shadowOffsetY = 2;
+  ctx.fillText(`Récord: ${game.maxDistance} m`, canvas.width / 2, 280);
+  ctx.fillText(`Monedas totales: ${game.globalCoins}`, canvas.width / 2, 310);
 
-// 👇 Mostrar récord más alto
- ctx.font = "20px system-ui";
-ctx.fillStyle = "#fff";
-ctx.shadowColor = "black";
-ctx.shadowBlur = 3;
-ctx.shadowOffsetX = 2;
-ctx.shadowOffsetY = 2;
-ctx.fillText(`Récord: ${game.maxDistance} m`, canvas.width / 2, 280);
-ctx.fillText(`Monedas totales: ${game.globalCoins}`, canvas.width / 2, 310);
+  // Botones de inicio y tienda
+  ctx.shadowColor = "black";
+  ctx.shadowBlur = 3;
+  ctx.shadowOffsetX = 2;
+  ctx.shadowOffsetY = 2;
+  ctx.font = "bold 24px system-ui";
+  ctx.fillText("Presiona Space para iniciar", canvas.width / 2, 340);
+  ctx.fillText("Presiona T para abrir la tienda", canvas.width / 2, 390);
 
-// Botón Start
- ctx.shadowColor = "transparent"; // reset sombra
- ctx.font = "bold 24px system-ui";
- ctx.shadowColor = "black";
- ctx.shadowBlur = 3;
- ctx.shadowOffsetX = 2;
- ctx.shadowOffsetY = 2;
- ctx.fillText("Presiona Space para iniciar", canvas.width / 2, 340);
-
-// Reset sombra
- ctx.shadowColor = "transparent";
- ctx.shadowBlur = 0;
- ctx.shadowOffsetX = 0;
- ctx.shadowOffsetY = 0;
+  // Reset sombra
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
 }
+
 
 
 function drawGameOver(ctx) {
-// Fondo de Game Over
-if (gameOverBackground.complete) {
-   ctx.drawImage(gameOverBackground, 0, 0, canvas.width, canvas.height);
- } else {
-   ctx.fillStyle = "black";
-   ctx.fillRect(0, 0, canvas.width, canvas.height);
- }
+  // Fondo de Game Over
+  if (gameOverBackground.complete) {
+    ctx.drawImage(gameOverBackground, 0, 0, canvas.width, canvas.height);
+  } else {
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
 
-// ====== Texto principal con sombra ======
- ctx.fillStyle = "#fff";
- ctx.font = "bold 48px system-ui";
- ctx.textAlign = "center";
+  // ====== Texto principal con sombra ======
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 48px system-ui";
+  ctx.textAlign = "center";
+  ctx.shadowColor = "black";
+  ctx.shadowBlur = 6;
+  ctx.shadowOffsetX = 3;
+  ctx.shadowOffsetY = 3;
+  ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 100);
 
- ctx.shadowColor = "black";
- ctx.shadowBlur = 6;
- ctx.shadowOffsetX = 3;
- ctx.shadowOffsetY = 3;
+  // 👇 Animación del personaje derrotado (usando skin seleccionado)
+  const skin = cosmetics[game.selectedSkin];
+  if (skin) {
+    const anim = skin.animations.dead;
+    anim.update(1 / 60); // Delta fijo para pantalla estática
+    anim.draw(ctx, canvas.width / 2 - 32, canvas.height / 2 - 32, 64, 64);
+  }
 
- ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 100);
+  // ====== Instrucciones con sombra ======
+  ctx.font = "20px system-ui";
+  ctx.fillText(`Avanzaste ${game.distance} m`, canvas.width / 2, canvas.height / 2 + 40);
+  ctx.fillText(`Récord: ${game.maxDistance} m`, canvas.width / 2, canvas.height / 2 + 70);
+  ctx.fillText("Presiona R para reintentar", canvas.width / 2, canvas.height / 2 + 110);
 
-// 👇 Animación del personaje derrotado (centrado debajo del texto)
- player.currentAnimation = playerAnimations.dead;
- player.currentAnimation.update(1/60); // Delta time fijo para game over
- player.currentAnimation.draw(ctx, canvas.width / 2 - 32, canvas.height / 2 - 32, 64, 64);
-
-
-
-// ====== Instrucción con sombra ======
-ctx.font = "20px system-ui";
-ctx.fillText(`Avanzaste ${game.distance} m`, canvas.width / 2, canvas.height / 2 + 40);
-ctx.fillText(`Récord: ${game.maxDistance} m`, canvas.width / 2, canvas.height / 2 + 70);
-ctx.fillText("Presiona R para reintentar", canvas.width / 2, canvas.height / 2 + 110);
-
-// Resetear sombra para no afectar otros elementos
- ctx.shadowColor = "transparent";
- ctx.shadowBlur = 0;
- ctx.shadowOffsetX = 0;
- ctx.shadowOffsetY = 0;
+  // Resetear sombra
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
 }
+
+
+function drawShop(ctx) {
+  const skins = getCosmeticsSorted();
+  const skin = skins[game.currentSkinIndex];
+
+  // Fondo
+  ctx.drawImage(menuBackground, 0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Título y monedas
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 32px system-ui";
+  ctx.textAlign = "center";
+  ctx.fillText("TIENDA", canvas.width / 2, 50);
+  ctx.font = "20px system-ui";
+  ctx.fillText(`💰 ${game.globalCoins} monedas`, canvas.width / 2, 80);
+
+  // Skin actual (animación idle)
+  const anim = skin.animations.idle;
+  anim.update(1 / 60);
+  anim.draw(ctx, canvas.width / 2 - 48, 140, 96, 96);
+
+  // Nombre y rareza
+  ctx.fillStyle = rarityColors[skin.rarity];
+  ctx.font = "bold 22px system-ui";
+  ctx.fillText(skin.name, canvas.width / 2, 270);
+
+  // Estado
+  ctx.font = "18px system-ui";
+  if (skin.unlocked) {
+    ctx.fillStyle = "#4CAF50";
+    ctx.fillText(
+      game.selectedSkin === skin.id ? "✓ EQUIPADO" : "DESBLOQUEADO",
+      canvas.width / 2,
+      300
+    );
+  } else {
+    ctx.fillStyle = "#FFD700";
+    ctx.fillText(`${skin.price} 💰`, canvas.width / 2, 300);
+  }
+
+  // Botones
+  const canAfford = game.globalCoins >= skin.price;
+
+  if (skin.unlocked && game.selectedSkin !== skin.id) {
+    ctx.fillStyle = "rgba(76,175,80,0.7)";
+    ctx.fillRect(canvas.width / 2 - 80, 330, 160, 40);
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 16px system-ui";
+    ctx.fillText("C PARA EQUIPAR", canvas.width / 2, 357);
+  } else if (!skin.unlocked) {
+  ctx.fillStyle = canAfford ? "rgba(255,193,7,0.7)" : "rgba(100,100,100,0.7)";
+  ctx.fillRect(canvas.width / 2 - 80, 330, 160, 40);
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 16px system-ui";
+  ctx.fillText("C PARA COMPRAR", canvas.width / 2, 357);
+}
+
+  // Flechas del carrusel
+  ctx.font = "bold 40px system-ui";
+  ctx.fillStyle = "#fff";
+  ctx.fillText("‹", 80, canvas.height / 2);
+  ctx.fillText("›", canvas.width - 80, canvas.height / 2);
+
+  // Botón volver
+  ctx.fillStyle = "rgba(244,67,54,0.7)";
+  ctx.fillRect(canvas.width / 2 - 60, canvas.height - 60, 120, 40);
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 16px system-ui";
+  ctx.fillText("B para regresar", canvas.width / 2, canvas.height - 35);
+
+  // 👇 Mensaje de feedback de la tienda
+  if (game.shopMessage) {
+    ctx.fillStyle = "#ff4444"; // rojo para errores
+    ctx.font = "bold 18px system-ui";
+    ctx.textAlign = "center";
+    ctx.fillText(game.shopMessage, canvas.width / 2, canvas.height - 100);
+  }
+}
+
 
 function loop(currentTime) {
  // Calcular delta time en segundos
@@ -299,15 +450,16 @@ function loop(currentTime) {
 
  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-if (game.state === "menu") {
-   // logoAnimation.update();
-   drawMenu(ctx);
- } else if (game.state === "playing") {
-   update(deltaTime);
-   draw();
- } else if (game.state === "gameover") {
-   drawGameOver(ctx); 
- }
+ if (game.state === "menu") {
+    drawMenu(ctx);
+  } else if (game.state === "playing") {
+    update(deltaTime);
+    draw();
+  } else if (game.state === "gameover") {
+    drawGameOver(ctx);
+  } else if (game.state === "shop") { 
+    drawShop(ctx);
+  }
 
 requestAnimationFrame(loop);
 }

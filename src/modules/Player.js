@@ -1,4 +1,5 @@
 //========================== Player =========================
+
 // player.js
 export default class Player {
 constructor(x, y, width, height, canvasHeight, canvasWidth, animations) {
