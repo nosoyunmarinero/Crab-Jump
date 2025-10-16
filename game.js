@@ -112,9 +112,13 @@ openShop() {
   },
 
    closeShop() {
+  if (this.gameOver) {
+    this.state = "gameover";
+  } else {
     this.state = "menu";
-    this.shopMessage ="";
-  },
+  }
+  this.shopMessage = "";
+},
   getSkins() {
   return getCosmeticsSorted();
 },
@@ -349,6 +353,7 @@ function drawGameOver(ctx) {
   ctx.fillText(`Avanzaste ${game.distance} m`, canvas.width / 2, canvas.height / 2 + 40);
   ctx.fillText(`Récord: ${game.maxDistance} m`, canvas.width / 2, canvas.height / 2 + 70);
   ctx.fillText("Presiona R para reintentar", canvas.width / 2, canvas.height / 2 + 110);
+  ctx.fillText("Presiona T para la tienda", canvas.width / 2, canvas.height / 2 + 140);
 
   // Resetear sombra
   ctx.shadowColor = "transparent";

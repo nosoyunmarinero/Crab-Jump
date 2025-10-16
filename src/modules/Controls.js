@@ -42,7 +42,9 @@ export default class Controls {
       }
 
       if (e.key.toLowerCase() === "r" && this.game.gameOver) this.game.start();
-      if (e.key.toLowerCase() === "t" && this.game.state === "menu") this.game.openShop();
+      if (e.key.toLowerCase() === "t" && (this.game.state === "menu" || this.game.state === "gameover")) {
+  this.game.openShop();
+}
       if (e.key.toLowerCase() === "b" && this.game.state === "shop") this.game.closeShop();
     });
 
@@ -108,9 +110,18 @@ export default class Controls {
 
     // === Shop: abrir / comprar / regresar ===
     if (shopOpenBtn) {
-      shopOpenBtn.addEventListener('click', () => { if (this.game.state === 'menu') this.game.openShop(); });
-      shopOpenBtn.addEventListener('touchstart', (e) => { e.preventDefault(); if (this.game.state === 'menu') this.game.openShop(); });
+  shopOpenBtn.addEventListener('click', () => { 
+    if (this.game.state === 'menu' || this.game.state === 'gameover') {
+      this.game.openShop();
     }
+  });
+  shopOpenBtn.addEventListener('touchstart', (e) => { 
+    e.preventDefault(); 
+    if (this.game.state === 'menu' || this.game.state === 'gameover') {
+      this.game.openShop();
+    }
+  });
+}
 
     if (shopBuyBtn) {
       shopBuyBtn.addEventListener('click', () => { if (this.game.state === 'shop') this.game.attemptPurchaseOrEquip(); });
@@ -132,23 +143,23 @@ export default class Controls {
 
     // === Actualización de UI (visibilidad por estado) ===
     setInterval(() => {
-      const inMenu = (this.game.state === 'menu' && !this.game.started && !this.game.gameOver);
-      const inShop = (this.game.state === 'shop');
-      const inGame = (this.game.state === 'playing');
-      const inOver = (this.game.state === 'gameover');
+  const inMenu = (this.game.state === 'menu' && !this.game.started && !this.game.gameOver);
+  const inShop = (this.game.state === 'shop');
+  const inGame = (this.game.state === 'playing');
+  const inOver = (this.game.state === 'gameover');
 
-      // Base
-      startBtn.style.display   = inMenu ? 'flex' : 'none';
-      restartBtn.style.display = inOver ? 'flex' : 'none';
-      pauseBtn.style.display   = inGame ? 'flex' : 'none';
+  // Base
+  startBtn.style.display   = inMenu ? 'flex' : 'none';
+  restartBtn.style.display = inOver ? 'flex' : 'none';
+  pauseBtn.style.display   = inGame ? 'flex' : 'none';
 
-      // Tienda
-      if (shopOpenBtn) shopOpenBtn.style.display = inMenu ? 'flex' : 'none'; // botón "Tienda" solo en menú
-      if (shopBuyBtn)  shopBuyBtn.style.display  = inShop ? 'flex' : 'none'; // "Comprar" solo en tienda
-      if (shopBackBtn) shopBackBtn.style.display = inShop ? 'flex' : 'none'; // "Regresar" solo en tienda
+  // Tienda
+  if (shopOpenBtn) shopOpenBtn.style.display = (inMenu || inOver) ? 'flex' : 'none'; // 👈 ahora también en game over
+  if (shopBuyBtn)  shopBuyBtn.style.display  = inShop ? 'flex' : 'none';
+  if (shopBackBtn) shopBackBtn.style.display = inShop ? 'flex' : 'none';
 
-      if (inGame) pauseBtn.textContent = this.game.paused ? '▶' : '||';
-    }, 100);
+  if (inGame) pauseBtn.textContent = this.game.paused ? '▶' : '||';
+}, 100);
 
     // Prevenir menú contextual
     [leftBtn, rightBtn, startBtn, restartBtn, pauseBtn, shopOpenBtn, shopBuyBtn, shopBackBtn]
