@@ -63,14 +63,20 @@ export const zombieAnimations = {
 export const sirAnimations = {
   idle: new Animation({ src: "./src/Assets/Cosmetics/Sir/crab_sir_idle.png", frames: 3, interval: 10 }),
   jump: new Animation({ src: "./src/Assets/Cosmetics/Sir/crab_sir_win.png", frames: 6, interval: 8 }),
-  dead: new Animation({ src: "./src/Assets/Cosmetics/Sir/crab_sir_dead.png", frames: 10, interval: 6 }),
+  dead: new Animation({ src: "./src/Assets/Cosmetics/Sir/crab_sir_dead.png", frames: 9, interval: 6 }),
 };
 
 export const clownAnimations = {
   idle: new Animation({ src: "./src/Assets/Cosmetics/Clown/crab_clown_idle.png", frames: 3, interval: 10 }),
   jump: new Animation({ src: "./src/Assets/Cosmetics/Clown/crab_clown_win.png", frames: 6, interval: 8 }),
-  dead: new Animation({ src: "./src/Assets/Cosmetics/Clown/crab_clown_dead.png", frames: 10, interval: 6 }),
+  dead: new Animation({ src: "./src/Assets/Cosmetics/Clown/crab_clown_dead.png", frames: 9, interval: 6 }),
 };
+
+export const cowboyAnimation = {
+  idle: new Animation({ src: "./src/Assets/Cosmetics/Cowboy/crab_cowboy_idle.png", frames: 3, interval: 10 }),
+  jump: new Animation({ src: "./src/Assets/Cosmetics/Cowboy/crab_cowboy_jump.png", frames: 6, interval: 8 }),
+  dead: new Animation({ src: "./src/Assets/Cosmetics/Cowboy/crab_cowboy_dead.png", frames: 9, interval: 6 }),
+}
 
 
 //Animaciones platforms
