@@ -189,18 +189,25 @@ return [keys[0]];
 
 // ================== MÉTODOS DE OBSTÁCULOS ==================
 
+// Reemplaza tu método createObstacle con este:
+
 createObstacle(typeKey, x, y) {
    const type = obstacles[typeKey];
    const obstacle = {
      x,
      y,
- 	width: type.width,
- 	height: type.height,
- 	speed: type.fallSpeed,
- 	type: typeKey,
- 	effect: type.effect,
- 	ready: true,
- 	image: null,
+     width: type.width,
+     height: type.height,
+     speed: type.fallSpeed,
+     type: typeKey,
+     effect: type.effect,
+     ready: true,
+     image: null,
+     // ✅ AGREGAR los offsets de colisión
+     collisionOffsetTop: type.collisionOffsetTop || 0,
+     collisionOffsetBottom: type.collisionOffsetBottom || 0,
+     collisionOffsetLeft: type.collisionOffsetLeft || 0,
+     collisionOffsetRight: type.collisionOffsetRight || 0,
    };
 
    const src = Array.isArray(type.srcs)
@@ -208,7 +215,7 @@ createObstacle(typeKey, x, y) {
      : type.srcs;
 
    if (src) {
- 	const img = new Image();
+     const img = new Image();
      obstacle.image = img;
      obstacle.ready = false;
      img.onload = () => { obstacle.ready = true; };
@@ -216,7 +223,7 @@ createObstacle(typeKey, x, y) {
    }
 
    return obstacle;
- }
+}
 
 randomObstacleType() {
 const keys = Object.keys(obstacles);
@@ -238,49 +245,53 @@ spawnObstacle() {
  }
 
 updateObstacles(player, dt) {
-// Convertir el intervalo de spawn a tiempo real
-this.obstacleSpawnTimer = (this.obstacleSpawnTimer || 0) + dt;
-if (this.obstacleSpawnTimer >= this.obstacleSpawnInterval / 60) {
-   this.spawnObstacle();
-   this.obstacleSpawnTimer = 0;
- }
+  // Convertir el intervalo de spawn a tiempo real
+  this.obstacleSpawnTimer = (this.obstacleSpawnTimer || 0) + dt;
+  if (this.obstacleSpawnTimer >= this.obstacleSpawnInterval / 60) {
+    this.spawnObstacle();
+    this.obstacleSpawnTimer = 0;
+  }
 
-this.obstacles = this.obstacles.filter((o) => {
-   o.y += o.speed * dt * 60; // hace caer al obstáculo con delta time
+  this.obstacles = this.obstacles.filter((o) => {
+    o.y += o.speed * dt * 60;
 
-   // detección de colisión jugador vs obstáculo
-   const hit =
-     o.x < player.x + player.width &&
-     o.x + o.width > player.x &&
-     o.y < player.y + player.height &&
-     o.y + o.height > player.y;
+    // Aplicar offsets a la colisión del obstáculo
+    const oLeft = o.x + (o.collisionOffsetLeft || 0);
+    const oRight = o.x + o.width - (o.collisionOffsetRight || 0);
+    const oTop = o.y + (o.collisionOffsetTop || 0);
+    const oBottom = o.y + o.height - (o.collisionOffsetBottom || 0);
 
-   if (hit) {
- 	if (o.effect === "kill") {
-   	if (this.onGameOver) this.onGameOver(); // termina el juego
-   	return false; // elimina obstáculo
-     }
+    // Detección de colisión jugador vs obstáculo CON offsets
+    const hit =
+      oLeft < player.x + player.width &&
+      oRight > player.x &&
+      oTop < player.y + player.height &&
+      oBottom > player.y;
 
- 	if (o.effect === "bounce") {
-  	const verticalForce = 10;                	// fuerza vertical base
-   	const oCenterY     = o.y + o.height / 2; 	// centro de la pelota
-    	const pCenterY     = player.y + player.height / 2; // centro del jugador
+    if (hit) {
+      if (o.effect === "kill") {
+        if (this.onGameOver) this.onGameOver();
+        return false;
+      }
 
-   	// rebote arriba vs. abajo según dónde impactó
-   	if (pCenterY < oCenterY) {
-       player.vy = -verticalForce;            	// rebota hacia arriba
-       } else {
-      player.vy = verticalForce;             	// empuja hacia abajo
-       }
+      if (o.effect === "bounce") {
+        const verticalForce = 10;
+        const oCenterY = oTop + (oBottom - oTop) / 2;
+        const pCenterY = player.y + player.height / 2;
 
- player.setAnimation("jump");             	// animación de rebote
-return true;                             	// no elimina la pelota
-}
+        if (pCenterY < oCenterY) {
+          player.vy = -verticalForce;
+        } else {
+          player.vy = verticalForce;
+        }
 
-   }
+        player.setAnimation("jump");
+        return true;
+      }
+    }
 
-   return o.y < this.cameraY + this.canvasHeight + o.height; // mantiene obstáculo en pantalla
- });
+    return o.y < this.cameraY + this.canvasHeight + o.height;
+  });
 }
 
 updateObjects(player, dt) {
@@ -324,16 +335,44 @@ this.objects.forEach(obj => {
  });
 }
 
+
 drawObstacles(ctx) {
-   this.obstacles.forEach((o) => {
- 	if (o.image && o.ready) {
-       ctx.drawImage(o.image, o.x, o.y - this.cameraY, o.width, o.height);
-     } else {
-       ctx.fillStyle = "red";
-       ctx.fillRect(o.x, o.y - this.cameraY, o.width, o.height);
-     }
-   });
- }
+  this.obstacles.forEach((o) => {
+    // Dibujar la imagen del obstáculo
+    if (o.image && o.ready) {
+      ctx.drawImage(o.image, o.x, o.y - this.cameraY, o.width, o.height);
+    } else {
+      ctx.fillStyle = "red";
+      ctx.fillRect(o.x, o.y - this.cameraY, o.width, o.height);
+    }
+
+    // Dibujar líneas de debug si está activado
+    if (this.debug) {
+      ctx.save();
+      
+      // Calcular el área de colisión real con offsets
+      const oLeft = o.x + (o.collisionOffsetLeft || 0);
+      const oRight = o.x + o.width - (o.collisionOffsetRight || 0);
+      const oTop = o.y + (o.collisionOffsetTop || 0);
+      const oBottom = o.y + o.height - (o.collisionOffsetBottom || 0);
+      
+      const collisionWidth = oRight - oLeft;
+      const collisionHeight = oBottom - oTop;
+      
+      // Rectángulo de colisión ROJO (área real de colisión)
+      ctx.strokeStyle = "red";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(
+        oLeft, 
+        oTop - this.cameraY, 
+        collisionWidth, 
+        collisionHeight
+      );
+      
+      ctx.restore();
+    }
+  });
+}
 
 
 
