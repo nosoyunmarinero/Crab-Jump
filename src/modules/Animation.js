@@ -74,8 +74,14 @@ export const clownAnimations = {
 
 export const cowboyAnimation = {
   idle: new Animation({ src: "./src/Assets/Cosmetics/Cowboy/crab_cowboy_idle.png", frames: 3, interval: 10 }),
-  jump: new Animation({ src: "./src/Assets/Cosmetics/Cowboy/crab_cowboy_jump.png", frames: 6, interval: 8 }),
+  jump: new Animation({ src: "./src/Assets/Cosmetics/Cowboy/crab_cowboy_jump.png", frames: 11, interval: 8 }),
   dead: new Animation({ src: "./src/Assets/Cosmetics/Cowboy/crab_cowboy_dead.png", frames: 9, interval: 6 }),
+}
+
+export const pumpkinAnimation = {
+  idle: new Animation({ src: "./src/Assets/Cosmetics/Pumpkin/crab_pum_idle.png", frames: 3, interval: 10 }),
+  jump: new Animation({ src: "./src/Assets/Cosmetics/Pumpkin/crab_pum_jump.png", frames: 11, interval: 8 }),
+  dead: new Animation({ src: "./src/Assets/Cosmetics/Pumpkin/crab_pum_dead.png", frames: 9, interval: 6 }),
 }
 
 

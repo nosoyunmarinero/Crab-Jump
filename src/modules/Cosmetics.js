@@ -1,6 +1,6 @@
 // ========== COSMETICS ==========
 
-import { Animation, playerAnimations, zombieAnimations, sirAnimations, clownAnimations, cowboyAnimation } from "./Animation.js";
+import { Animation, playerAnimations, zombieAnimations, sirAnimations, clownAnimations, cowboyAnimation, pumpkinAnimation } from "./Animation.js";
 
 // ====== Definición de skins ======
 export const cosmetics = {
@@ -47,6 +47,14 @@ export const cosmetics = {
     rarity: "rare",
     unlocked: false,
     animations: cowboyAnimation,
+  },
+  pumpkin_crab: {
+    id: "pumpkin_crab",
+    name: "Pumpkin Crab",
+    price: 500,
+    rarity: "Epic",
+    unlocked: false,
+    animations: pumpkinAnimation,
   },
 };
 
